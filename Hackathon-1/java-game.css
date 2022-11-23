@@ -1,0 +1,110 @@
+* {
+	box-sizing: border-box;
+	outline: 0;
+}
+
+body {
+	background-image: url("https://images.unsplash.com/photo-1575252663512-b25714ec27f9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8Mnx8fGVufDB8fHx8&w=1000&q=80");
+	background-color: #cccccc;
+	background-repeat: no-repeat;
+	min-height: 100%;
+  	min-width: 100px;
+   }
+
+section {
+	display:  flex;
+	justify-content: center;
+	align-items: center;
+	gap : 10px;
+	margin-top:  10px;
+}
+
+.dropzone {
+	width : 100px;
+	height:  100px;
+	border:  2px solid black;
+	display:  flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#squareOne {
+	background-color: blue;
+}
+
+#squareTwo {
+	background-color: red;
+}
+
+#squareThree {
+	background-color: yellow;
+}
+
+#squareFour {
+	background-color: green;
+}
+
+#squareFive {
+	background-color: black;
+}
+
+#squareSix {
+	background-color: pink;
+}
+
+#squareSeven {
+	background-color: purple;
+}
+
+#squareEight {
+	background-color: grey;
+}
+
+#squareNine {
+	background-color: orange;
+}
+
+.draggedItem {
+	width : 90px;
+	height:  90px;
+	padding:  2px;
+	border:  2px solid black; 
+	border-radius:  20%;
+	/* background-color: rgb(139, 200, 221); */
+}
+
+#boxOne {
+	background-color: gray;
+}
+
+#boxTwo {
+	background-color: pink;
+}
+
+#boxThree {
+	background-color: orange;
+}
+
+#boxFour {
+	background-color: purple; 
+}
+
+#boxFive {
+	background-color: blue;
+}
+
+#boxSix {
+	background-color: green;
+}
+
+#boxSeven {
+	background-color: yellow;
+}
+
+#boxEight {
+	background-color: red;
+}
+
+#boxNine {
+	background-color: black;
+}
