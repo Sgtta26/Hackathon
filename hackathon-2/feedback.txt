@@ -1,0 +1,7 @@
+He llo sara this is your hackaton feedback. The game is ok. Is good that you make a project at least. I will recommend 
+instead of using so many elif statments to make a switch statment for the different number on the dice. Also to add
+a little of reality to the game making the user to press enter or some key to roll the dice each time. 
+It is simple and not using any advanced feature of python. You could even make a class dice game or something like 
+that to manage the different functions in a more DRY way. 
+
+Thanks for sharing your project.
