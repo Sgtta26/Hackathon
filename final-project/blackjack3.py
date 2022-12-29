@@ -19,7 +19,9 @@ class Player:
         self.cards = []
         self.is_house = is_house
         self.scores = []
-        
+        self.deal = ''
+        self.lost = False
+
     def total(self): 
         """Calculate total score for player's card""" 
         total_player = 0
@@ -41,7 +43,7 @@ class Player:
             elif card in face2 and total_player <= 11:
                 if not self.is_house:
                     print(f"You have {self.cards}")
-                    question = int(input('You have the possibility to choose 1 or 11 :'))
+                    question = int(input(f'{self.name}, you have the possibility to choose 1 or 11 :'))
                     if question == 1:
                         total_player += 1
                     if question == 11:
@@ -71,6 +73,9 @@ class Player:
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return self.name
+
 # take the variable name and number of player that we already have from the input of the begging
 class BlackJack:
 
@@ -82,31 +87,40 @@ class BlackJack:
 
     # distribute cards for players
     def dealCard_player(self, player: Player):
-        card = random.choice(self.deck)
-        player.cards.append(card)
-        self.deck.remove(card)
+        if player.is_house and player.total_score > 16:
+            pass
+        else:
+            card = random.choice(self.deck)
+            player.cards.append(card)
+            player.total()
+            self.deck.remove(card)
 
     # distribute base on the amount of player (how many player we choose in the beginning)
-    def deal_cards(self):
-        for player in self.players:
-            self.dealCard_player(player) 
-
-        self.dealCard_player(self.house) # Deal one card to house
+    def deal_cards(self, initial=False):
+        if initial:
+            for _ in range(2):
+                for player in self.players:
+                    self.dealCard_player(player)
+                self.dealCard_player(self.house)
+        else:
+            deal_card = lambda p: input(f"{p.name}: (1) Stay here\n(2) Hit a new card\n")
+            for player in self.players:
+                if player.lost or player.deal == '1':
+                    continue
+                player.deal = deal_card(player)
+                if player.deal == '2':
+                    self.dealCard_player(player)
+            self.dealCard_player(self.house) # Deal one card to house
 
      # check all the possibility for know who is the winner:
     @staticmethod
     def check_win_lose(player):
 
         if player.total_score == 21:
-            print(f"\{player} has {player.cards} for a total of {player.total_score}")
-            print("Blackjack ! You win !")
-            return "W"
-
+            return "B"
         elif player.total_score > 21:
-            print(f"\{player} has {player.cards} for a total of {player.total_score}")
-            print("You bust ! ")
+            player.lost = True
             return "L"
-
         else:
             return player.total_score
 
@@ -121,75 +135,132 @@ class BlackJack:
 
         return win_lose
 
+    def check_winner(self):
 
-            # elif total_computer(dealerHand) == 21:
-            #     print(f"\nYou have {playerHand} for a total of {player_score} and the dealer has {dealerHand} for a total of {total_computer(dealerHand)}")
-            #     print("Blackjack ! Dealer wins !")
-            #     clear_hand()
-            #     playAgain()
+        players_final = self.calculate_winner()
+        blackjacks = [player for player in players_final if players_final[player] == 'B']
+        losers = [player for player in players_final if players_final[player] == 'L']
+        winners = []
 
-            # elif total_computer(dealerHand) > 21:
-            #     print(f"\nYou have {playerHand} for a total of {player_score} and the dealer has {dealerHand} for a total of {total_computer(dealerHand)}")
-            #     print("Dealer busts ! You win !")
-            #     clear_hand()
-            #     playAgain()
+        if not blackjacks:
+            winners = [(player, score) for player, score in players_final.items()
+                       if player not in [*blackjacks, *losers]]
+            winners.sort(key=lambda p: p[1], reverse=True)
 
-            # elif 21 - total_computer(dealerHand) < 21 - player_score:
-            #     print(f"\nYou have {playerHand} for a total of {player_score} and the dealer has {dealerHand} for a total of {total_computer(dealerHand)}")
-            #     print("Dealer wins !")
-            #     clear_hand()
-            #     playAgain()
+            winner = winners[0]
+            for player in winners:
+                if player[1] == winner[1]:
+                    pass
+                else:
+                    losers.append(player[0])
 
-            # elif 21 - total_computer(dealerHand) > 21 - player_score:
-            #     print(f"\nYou have {playerHand} for a total of {player_score} and the dealer has {dealerHand} for a total of {total_computer(dealerHand)}")
-            #     print("You win !")
-            #     clear_hand()
-            #     playAgain()
+        else:
+            losers = [player for player in players_final if player not in blackjacks]
 
+        return blackjacks, losers, winners
+
+    def print_winlose(self):
+
+        blackjack_message = lambda player: f"{player} has BLACKJACK!"
+        lose_message = lambda player: f"{player} LOST!!"
+        win_message = lambda player: f"{player} WON!!"
+
+        blackjacks, losers, winners = self.check_winner()
+
+        if blackjacks:
+            for player in blackjacks:
+                print(blackjack_message(player))
+            for player in losers:
+                print(lose_message(player))
+        else:
+            winner = ('', 0)  # ("Sarah", 18)
+            for player in winners:
+                if player[1] >= winner[1]:
+                    print(win_message(player[0]))
+                else:
+                    break
+                winner = player
+
+            for player in losers:
+                print(lose_message(player))
+
+    def check_finish(self):
+
+        blackjacks, losers, winners = self.check_winner()
+
+        if blackjacks:
+            self.print_winlose()
+            return blackjacks
+
+        if self.house.total_score > 21:
+            # print("House LOST")
+            print(f"HOUSE GOT {self.house.total_score}")
+            self.print_winlose()
+            return winners
+
+        if len([player for player in self.players if player.lost]) == len(self.players):
+            # print("ALL PLAYERS LOST. HOUSE WINS")
+            self.print_winlose()
+            return self.house
+
+        deals = [player.deal for player in self.players if not player.lost]
+        if all(map(lambda deal: True if deal == '1' else False, deals)):
+            # print("ALL PLAYERS STAYED. COMPARING")
+            self.print_winlose()
+            return winners
+
+        else:
+            return
 
 # say for all the player which card he got
     def __str__(self):
         output = ""
-        players = [str(player) for player in self.players]
+        players = [player for player in self.players]
         cards = [player.cards for player in self.players]
 
     # player1 : K|7 // player1 : 10|3 == it takes the results from the str and make it "more organized"
         for player, card in zip(players, cards):
             card = list(map(str, card))
-            output += f"{player}: {'|'.join(card)}\n"
+            output += f"{player}: {'|'.join(card)} for total of {player.total_score}\n"
 
         house_cards = list(map(str, self.house.cards))
+        house_cards[-1] = '?'
         output += f"\n{self.house}: {'|'.join(house_cards)}"
         return output 
 
 
 
+
 def main():
-    game = BlackJack(2, 'Sarah','Yossi')
-    game.deal_cards()
-    
+    new_game = ''
 
-    for player in game.players:
-        player.total()
-        print(player.total_score)
-    game.house.total()
+    while new_game != 'n':
+        new_game = input("Would you like to play? Please write 'Y' or 'N': ").lower()
 
-    game.deal_cards()
-    for player in game.players:
-        player.total()
-        print(player.total_score)
-    game.house.total()
+        if new_game == 'y':
+            rename = []
+            regame = int(input('How many player you are :'))
+            x = range(regame)
+            for n in x:
+                add_name = input(f'What the name of Player {n + 1} :')
+                rename.append(add_name)
 
-    game.deal_cards()
-    for player in game.players:
-        player.total()
-        print(player.total_score)
-    game.house.total()
+            game = BlackJack(regame, *rename)
+            game.deal_cards(initial=True)
 
-    print(game.calculate_winner())
+            while True:
+                print(game)
+                game.deal_cards()
+                result = game.check_finish()
+                if result is not None:
+                    break
 
+        elif new_game.lower() == 'n':
+            print("Maybe next time then...")
+        else:
+            print("Please use a valid input.")
+            main()
+
+# it is for that the game work just in this file
 if __name__ == '__main__':
     main()
-
-
-

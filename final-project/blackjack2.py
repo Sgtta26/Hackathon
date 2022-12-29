@@ -196,6 +196,9 @@ def playAgain():
         print("Maybe next time then...")
     else:
         print("Please use a valid input.")
+
+
         playAgain()
 
-playAgain()
+if __name__ == '__main__':
+    playAgain()
